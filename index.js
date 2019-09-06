@@ -89,14 +89,14 @@ class googleDrive {
       let id = await this.findPathId(path);
       return this._ls(id);
     }
-	
+
     async _ls(parent){
-      console.log("_ls", parent);
-      if (parent == undefined){
+      console.log("_ls",parent);
+      if (parent==undefined){
         return null;
       }
       let obj = await this._lsWithToken(parent, null);
-      // 过多子请求会被 cf 关闭请求 可执行修改 loadTimes 限制
+      // 过多子请求会被 cf 关闭请求 可自行修改 loadTimes 限制
       let loadTimes = 0;
       while (obj && obj.nextPageToken && obj.nextPageToken.length > 0 && loadTimes < 30){
         let newObj = await this._lsWithToken(parent, obj.nextPageToken)
@@ -116,14 +116,14 @@ class googleDrive {
         return null;
       }
       let url = 'https://www.googleapis.com/drive/v3/files';
-      let params = { 'includeItemsFromAllDrives': true, 'supportsAllDrives': true, 'pageSize': 1000, };
+      let params = { 'includeItemsFromAllDrives':true,'supportsAllDrives':true,'pageSize':1000,};
       if (pageToken) {
         params.pageToken = pageToken;
       }
       params.q = `'${parent}' in parents and trashed = false`;
-      params.orderBy = 'folder,modifiedTime desc,name';
+      params.orderBy= 'folder,modifiedTime desc,name';
       params.fields = "nextPageToken, files(id, name, mimeType, size , modifiedTime)";
-      url += '?' + this.enQuery(params);
+      url += '?'+this.enQuery(params);
       let requestOption = await this.requestOption();
       let response = await fetch(url, requestOption);
       let obj = await response.json();
